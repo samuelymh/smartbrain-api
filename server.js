@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt-nodejs');
 
 const app = express();
 
@@ -8,7 +9,7 @@ const database = {
       id: '123',
       name: 'John',
       email: 'john@gmail.com',
-      password: 'cookies',
+      password: '$2a$10$6qhC/6nSgEAi6QXePQYyM.6O3PwCIf0jlDYkbYmY/SEXWo.8ukGhW',
       entries: 0,
       joined: new Date()
     },
@@ -30,29 +31,33 @@ app.get('/', (req, res) => {
   res.send(database.users);
 });
 
-app.post('/signin', (req, res) => {
-  if (req.body.email === database.users[0].email &&
-      req.body.password === database.users[0].password) {
-    res.json('success');
-  } else {
-    res.status(400).json('error logging in');
-  }
+app.post('/signin', (req, result) => {
+  const { email, password } = req.body;
+
+  // Load hash from your password DB.
+  bcrypt.compare(password, database.users[0].password, (err, res) => {
+    if (res && email === database.users[0].email) {
+      result.json('success');
+    } else {
+      result.status(400).json('error logging in');
+    }    
+});
 });
 
 app.post('/register', (req, res) => {
   const { name, email, password } = req.body;
-
-  const user = {
-    id: '125',
-    name: name,
-    email: email,
-    password: password,
-    entries: 0,
-    joined: new Date()
-  }
-
-  database.users.push(user);
-
+  bcrypt.hash(password, null, null, function(err, hash) {
+    // Store hash in your password DB.
+    const user = {
+      id: '125',
+      name: name,
+      email: email,
+      password: hash,
+      entries: 0,
+      joined: new Date()
+    }
+    database.users.push(user);
+  });
   res.json(user);
 });
 
