@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
 
 const app = express();
 
@@ -26,6 +27,7 @@ const database = {
 
 // express middleware to allow us to read json from req.body
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send(database.users);
@@ -89,8 +91,8 @@ app.put('/image', (req, res) => {
   }
 })
 
-app.listen(3000, () => {
-  console.log('app is running on port 3000');
+app.listen(3001, () => {
+  console.log('app is running on port 3001');
 });
 
 /*
