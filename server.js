@@ -10,7 +10,7 @@ const database = {
       id: '123',
       name: 'John',
       email: 'john@gmail.com',
-      password: '$2a$10$6qhC/6nSgEAi6QXePQYyM.6O3PwCIf0jlDYkbYmY/SEXWo.8ukGhW',
+      password: 'cookies',
       entries: 0,
       joined: new Date()
     },
@@ -33,17 +33,14 @@ app.get('/', (req, res) => {
   res.send(database.users);
 });
 
-app.post('/signin', (req, result) => {
+app.post('/signin', (req, res) => {
   const { email, password } = req.body;
-
-  // Load hash from your password DB.
-  bcrypt.compare(password, database.users[0].password, (err, res) => {
-    if (res && email === database.users[0].email) {
-      result.json('success');
+    if (req.body.email && email === database.users[0].email &&
+        req.body.password === database.users[0].password) {
+      res.json(database.users[0]);
     } else {
-      result.status(400).json('error logging in');
-    }    
-});
+      res.status(400).json('error logging in');
+    }  
 });
 
 app.post('/register', (req, res) => {
@@ -59,8 +56,8 @@ app.post('/register', (req, res) => {
       joined: new Date()
     }
     database.users.push(user);
+    res.json(user);
   });
-  res.json(user);
 });
 
 app.get('/profile/:id', (req, res) => {
