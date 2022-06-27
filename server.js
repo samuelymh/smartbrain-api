@@ -1,6 +1,18 @@
 const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
+const knex = require('knex');
+
+knex({
+  client: 'pg',
+  connection: {
+    host : '127.0.0.1', // 127.0.0.1 is localhost
+    port : 5432,
+    user : 'postgres',
+    password : 'test',
+    database : 'smartbrain-db'
+  }
+});
 
 const app = express();
 
@@ -103,4 +115,11 @@ routes(Endpoints) --> what happens
 /register         --> POST = new user object
 /profile/:userId  --> GET = user object
 /image            --> PUT = user's entries
+*/
+
+/*
+Now we change implementation of database from js to postgresql
+npm install knex (helpful module for sqlquerybuilder)
+npm install pg (for our db type, postgresql)
+
 */
