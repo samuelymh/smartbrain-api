@@ -83,8 +83,7 @@ app.post('/register', (req, res) => {
 
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
-  // let found = false;
-  db.select('*').from('users').where({id})
+  db.select('*').from('users').where({ id })
     .then(user => {
       if (user.length) {
         res.json(user[0]);
@@ -97,17 +96,15 @@ app.get('/profile/:id', (req, res) => {
 
 app.put('/image', (req, res) => {
   const { id } = req.body;
-  let found = false;
-  database.users.forEach(user => {
-    if(user.id === id) {
-      found = true;
-      return res.json(++user.entries);
-    }
-  });
-  if(!found){
-    res.status(400).json('user not found in database');
-  }
-})
+  db('users')
+    .where({ id })
+    .increment('entries', 1)
+    .returning('entries')
+    .then(entries => {
+      res.json(entries[0].entries);
+    })
+    .catch(err => res.status(400).json("Error when updating entries."));
+});
 
 app.listen(3001, () => {
   console.log('app is running on port 3001');
