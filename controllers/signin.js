@@ -1,12 +1,21 @@
 const handleSignin = (req, response, db, bcrypt) => {
+  const { email, password } = req.body;
+  
+  // We want to validate the user inputs on both frontend and backend separately.
+  // We don't want to trust the frontend to make correct validations.
+  // This way it's more robust.
+  if(!email || !password){
+    return response.status(400).json('Incorrect submission format');
+  }
+
   db.select('email', 'hash').from('login')
-    .where('email', '=', req.body.email)
+    .where('email', '=', email)
     .then(data => {
       const { hash } = data[0];
-      bcrypt.compare(req.body.password, hash, (err, res) => {
+      bcrypt.compare(password, hash, (err, res) => {
         if(res){
           db.select('*').from('users')
-            .where('email', '=', req.body.email)
+            .where('email', '=', email)
             .then(user => {
               response.json(user[0]);
             })
