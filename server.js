@@ -43,6 +43,8 @@ app.get('/profile/:id', (req, res) => { profile.handleProfileGet(req, res, db) }
 // Refer to the image.js module. (My personal preference is still the above versions.)
 app.put('/image', image.handleImage(db));
 
+app.post('./imageurl', (req, res) => { image.handleApiCall(req, res) });
+
 app.listen(3001, () => {
   console.log('app is running on port 3001');
 });
