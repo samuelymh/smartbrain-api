@@ -23,45 +23,33 @@ const db = knex({
 
 const app = express();
 
-const database = {
-  users: [
-    {
-      id: '123',
-      name: 'John',
-      email: 'john@gmail.com',
-      password: 'cookies',
-      entries: 0,
-      joined: new Date()
-    },
-    {
-      id: '124',
-      name: 'Sally',
-      email: 'sally@gmail.com',
-      password: 'bananas',
-      entries: 0,
-      joined: new Date()
-    }
-  ]
-}
-
 // express middleware to allow us to read json from req.body
 app.use(express.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send(database.users);
+  res.send('success');
 });
 
-app.post('/signin', (req, res) => {
-  const { email, password } = req.body;
-
-  db
-  // if (req.body.email && email === database.users[0].email &&
-  //     req.body.password === database.users[0].password) {
-  //   res.json(database.users[0]);
-  // } else {
-  //   res.status(400).json('error logging in');
-  // }  
+app.post('/signin', (req, response) => {
+  db.select('email', 'hash').from('login')
+    .where('email', '=', req.body.email)
+    .then(data => {
+      const { hash } = data[0];
+      bcrypt.compare(req.body.password, hash, (err, res) => {
+        if(res){
+          db.select('*').from('users')
+            .where('email', '=', req.body.email)
+            .then(user => {
+              response.json(user[0]);
+            })
+            .catch(err => response.status(400).json('Unable to get user.'));
+        } else {
+            response.status(400).json('Wrong password');
+        }
+      })
+    })
+    .catch(err => response.status(400).json('Wrong credentials.'));
 });
 
 app.post('/register', (req, res) => {
